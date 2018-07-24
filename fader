@@ -1,0 +1,67 @@
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+
+
+/**
+ * Fader spawns a black square over the board that fades in and out to
+ * provide a fading effect. This effect is built to pause the scenario
+ * by incorporating delay into a loop.
+ * 
+ * @author Nathaniel Hailu
+ * @version May 2013
+ */
+
+/**
+ * Borrowed class from Mr.Cohen
+ */
+public class Fader extends Actor
+{
+    GreenfootImage fade;
+    BrickWorld world;
+    
+    /**
+     * Default constructor - When a new Fader is added
+     */
+    public Fader ()
+    {
+        fade = new GreenfootImage (800, 600);
+        fade.setColor (Color.BLACK);
+        fade.fill();
+        fade.setTransparency (0);
+        setImage (fade);
+    }
+
+    /**
+     * addedToWorld(World w) is automatically called when a Fader object
+     * is added to the World. In this case, stop the game (delay in loop
+     * has that effect) and gradually make the black square darker.
+     */
+    public void addedToWorld (World world)
+    {
+        this.world = (BrickWorld) world;
+        for (int fader = 0; fader <= 255; fader += 20)
+        {
+            fade.setTransparency(fader);
+            Greenfoot.delay(2);
+        }
+
+    }
+
+    /**
+     * When finished updating the level, call this method to
+     * slowly fade the black square back to clear, and eventually
+     * remove it.
+     */
+    public void fadeBackIn ()
+    {
+        Greenfoot.delay(10);
+        for (int fader = 255; fader >= 0; fader -= 20)
+        {
+            fade.setTransparency(fader);
+            Greenfoot.delay(2);
+        }  
+        //world.removeObject(this);
+    }
+}
+
+
