@@ -1,0 +1,159 @@
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+/**
+ * The ball of the game. It moves and bounces off the walls and the paddle and increases speed every level.
+ * 
+ * @author (Nathaniel Hailu)
+ * @version June 17 2013
+ */
+
+/**
+ * Credits:
+ */
+public class Ball extends Actor
+{
+    private int xMove;         // x movement speed
+    private int yMove;         // y movement speed
+    private int count = 2;
+    private boolean inPlay = true;
+    private boolean stuck = true;   // stuck to paddle
+    private Counter counter;
+
+    /**
+     * Moves the ball if the ball is not stuck on the paddle
+     */
+    public void act() 
+    {
+        if (!stuck) 
+        {
+            //Moves the ball
+            move();
+            //Checks if the ball is outside the boundaries of the game (which is how the user loses a life)
+            checkOut();
+        }
+    }
+
+    /**
+     * Moves the ball. Then check if the ball has hit the paddle, brick, or the wall
+     */
+    public void move()
+    {
+        //Gets the location of the ball
+        setLocation (getX() + xMove, getY() + yMove);
+        //Checks if the ball has hit the paddle or a brick
+        checkPaddleAndBrick();
+        //Checks if the ball has hit a wall
+        checkWalls();
+    }
+
+    /**
+     * Checks whether the ball has hit one of the three walls. Reverses direction if necessary.
+     */
+    private void checkWalls()
+    {
+        //Reverses the movement of the ball in the horizontal direction
+        if (getX() == 0 || getX() == getWorld().getWidth()-1) {
+            xMove = -xMove;
+        }
+        //Reverses the movement of the ball in the vertical direction
+        if (getY() == 0) {
+            yMove = -yMove;
+        }     
+    }
+
+    /**
+     * Check whether the ball has reached the bottom of the screen.
+     */
+    public void checkOut()
+    {
+        if (getY() == getWorld().getHeight()-1)
+        {
+            ((BrickWorld) getWorld()).ballIsOut();
+            getWorld().removeObject(this);
+        }
+    }
+
+    /**
+     * Checks if the ball has hit the paddle or a brick
+     * Borrowed code from mit
+     */
+
+    private void checkPaddleAndBrick()  //Beginning of borrowed code
+    {
+        Actor paddle = getOneIntersectingObject(Paddle.class);
+        if (paddle != null) {
+            yMove = -yMove;
+            int offset = getX() - paddle.getX();
+            xMove = xMove + (offset/10);
+            if (xMove > 7) {
+                xMove = 7;
+            }
+            if (xMove < -7) {
+                xMove = -7;
+            }
+        }
+        if(canSee(Brick.class))
+        {
+            Actor brick = getOneIntersectingObject(Brick.class);
+            if (brick != null) {
+                yMove = -yMove;
+                int offset = getX() - brick.getX();
+                xMove = xMove + (offset/10);
+                if (xMove > 7) {
+                    xMove = 7;
+                }
+                if (xMove < -7) {
+                    xMove = -7;
+                }
+            }
+            BrickWorld myBrickWorld = (BrickWorld) getWorld();
+            myBrickWorld.score();
+            eat(Brick.class);
+        }
+    }       //End of borrowed code
+
+    /**
+     * Moves the ball a given distance sideways.
+     */
+    public void move(int dist)
+    {
+        setLocation (getX() + 45, getY());
+    }
+
+    /**
+     * Releases the ball from the paddle.
+     */
+    public void release()
+    {
+        //Generates a random number to move the ball horizontally when released
+        xMove = Greenfoot.getRandomNumber(11) - 5;
+        yMove = -5;
+        //Ball no longer stuck on paddle
+        stuck = false;
+    }
+
+    /**
+     * Return true if we can see an object of class 'clss' right where we are. 
+     * False if there is no such object here.
+     * Borrowed code from mit
+     */
+    public boolean canSee(Class clss)
+    {
+        Actor actor = getOneObjectAtOffset(0, 0, clss);
+        return actor != null;        
+    }
+
+    /**
+     * Try to eat an object of class 'clss'. This is only successful if there
+     * is such an object where we currently are. Otherwise this method does
+     * nothing.
+     * Borrowed code from mit
+     */
+    public void eat(Class clss)
+    {
+        Actor actor = getOneObjectAtOffset(0, 0, clss);
+        if(actor != null) {
+            getWorld().removeObject(actor);
+        }
+    }
+}
