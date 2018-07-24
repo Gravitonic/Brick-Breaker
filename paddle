@@ -1,0 +1,91 @@
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+/**
+ * The game paddle. It is keyboard controlled (left, right, space). It also 
+ * generates a new ball when it is created itself.
+ * 
+ * @author (Nathaniel Hailu)
+ * @version June 17 2013
+ */
+
+/**
+ * Credits: Borrowed some code from mit
+ */
+public class Paddle extends Actor
+{
+    private Ball myBall;  // used before ball gets released
+
+    /**
+     * When the paddle gets created, a ball gets created as well.
+     */
+    public void addedToWorld(World world)
+    {
+        newBall();
+    }
+
+    /**
+     * Allows the user to move the paddle left and right as well as releasing the ball once they hit the space key.
+     */
+    public void act() 
+    {
+        //Using the left arrow key, moves the paddle to the left
+        if (Greenfoot.isKeyDown ("left")) {
+            moveSideways(-9);
+        }
+        //Using the right arrow key, moves the paddle to the right
+        if (Greenfoot.isKeyDown ("right")) {
+            moveSideways(9);
+        }
+        //Using the space key, releases the ball from the paddle
+        if (haveBall() && Greenfoot.isKeyDown ("space")) {
+            releaseBall();
+        }
+
+    }
+
+    /**
+     * Moves the paddle sideways.
+     * 
+     * @param dist  Moves the paddle at an X distance horizontally (left or right)
+     */
+    private void moveSideways(int dist) //Beginning of borrowed code
+    {
+        setLocation (getX() + dist, getY());
+        if (myBall != null) {
+            myBall.move (dist);
+        }
+    }       //End of borrowed code
+
+    /**
+     * Creates a new ball.
+     */
+    public void newBall()
+    {
+        //Creates the new ball
+        myBall = new Ball();
+        //Adds the ball into the world
+        getWorld().addObject (myBall, getX(), getY()-30);
+    }
+
+    /**
+     * Checks if the ball is on the paddle
+     * 
+     * @return boolean  True if ball is on paddle
+     */     
+    public boolean haveBall()
+    {
+        return myBall != null;
+    }
+
+    /**
+     * Releases the ball from the paddle
+     */
+    public void releaseBall()
+    {
+        //Releases ball
+        myBall.release();
+        //Checks if the ball is on the paddle
+        myBall = null;
+    }
+
+}
