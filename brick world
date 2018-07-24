@@ -1,0 +1,238 @@
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+
+/**
+ * Displays all object that will be present in the game.
+ * Includes the paddle, the bricks, the score bar and the level counter.
+ * <p>
+ * This is a basic brick breaking game with an unlimited amount of levels where the user controls the paddle and must try to detroy all the bricks by keeping the ball alive.
+ * The user will have three lives and once they have used them all up, the game ends.
+ * 
+ * @author (Nathaniel Hailu) 
+ * @version June 17 2013
+ */
+
+/**
+ * Credits: Music downloaded from youtube-mp3.com
+ * Main theme: (Brick breaker song)
+ * Credits: Graphics from Greenfoot (ball)
+ * Use arrow keys to move paddle left and right and hit the space key to release the ball.
+ * Used pixlr.com to draw the bricks and the paddle
+ * Code borroded from mit and Mr.Cohen (for counter and paddle)
+ * Known Bug: The level counter will not add the level once it has been completed and the leader boards does
+ */
+public class BrickWorld extends World
+{
+    private BrickWorld world;
+    private static GreenfootSound music = new GreenfootSound ("gameMusic.mp3");
+    private static final int GAP = 12;
+    private Paddle paddle;
+    private Counter counter;
+    private Ball ball;
+    private Brick[] bricks;
+    private Fader fader;
+    private int level = 1;
+    private int lives = 3;
+    private int ballSpeed;
+    private boolean levelComplete = false;
+
+    /**
+     * Adds all of the objects to the World
+     * Also resets every level once the user has completed a level
+     * 
+     */
+    public BrickWorld()
+    {    
+        super(460, 460, 1);
+        setPaintOrder (Fader.class,Brick.class,Ball.class);
+
+        // Add a new Fader to the World 
+        fader = new Fader ();
+        addObject (fader, 230, 230);
+
+        //Adds a new Counter to the World
+        counter = new Counter();
+        addObject (counter, 113, 440);
+
+        //Adds a new Paddle to the World
+        paddle = new Paddle();
+        addObject ( paddle, getWidth() / 2, getHeight() - 20);
+
+        // Sets the value of the level counter
+        counter.setLevel (level);
+        // start the first level
+        setNextLevel();  
+
+        //Adds the bricks onto the screen
+        createBricks();
+
+        //Plays the music
+        music.playLoop();
+    }
+
+    /**
+     * Checks when the user runs out of lives
+     * Ensures to reset level once all of the bricks have been destroyed
+     */
+    public void act()
+    {    
+
+        //Gets the number of brick objects from the brick class
+        int bricksLeft = getObjects(Brick.class).size();
+
+        //When the user runs out of lives, the game ends
+        if (lives == 0)
+        {
+            System.out.println ("Game Over.");
+        }
+
+        // When there are no bricks left, the game will continue to the next level
+        if (bricksLeft == 0)
+        { 
+            //Adds the level onto the level counter
+            level++;
+            counter.setLevel (level);
+            levelComplete = true;
+            //Removes all bricks from the screen
+            removeObjects (getObjects (Brick.class));
+
+            //Adds the fader to the world
+            fader.addedToWorld(world);  //Borrowed this code
+
+            setNextLevel();
+
+            //Initializes the bricks
+            createBricks();
+
+            //Creates the bricks and displays them onto the screen
+            createRow(bricksLeft);
+        }
+    }
+
+    /**
+     * setNextLevel method is called the endLevel method, or by the Constructor
+     * Borrowed code from Mr.Cohen
+     */
+    public void setNextLevel () 
+    {
+
+        //Sets the value for the level counter
+        counter.setLevel(level);
+
+        //Level is in progress
+        levelComplete = false;
+        level++;
+
+        // Removes the Fader now that the new frogs are in place
+        fader.fadeBackIn(); //Borrowed this code
+
+        // Short delay... Gives user time to get ready
+        Greenfoot.delay(50);   //End of borrowed code
+
+        //Removes the ball from the world
+        removeObject (ball);
+
+        //Sets the value of the level counter at the start of the new level
+        level++;
+    }
+
+    /**
+     * endLevel method is called by human when he reaches the bottom of the level. This method
+     * calls setNextLevel() after it finishes clearing the current level.
+     */
+    public void endLevel() 
+    {
+        //Gets the number of brick objects from the brick class
+        int bricksLeft = getObjects(Brick.class).size();
+        // Increase level and change level counter when no more bricks remain
+        if (levelComplete && bricksLeft == 0)
+        {
+            for (int i = bricksLeft; i <= bricksLeft; i++)
+            {
+                bricks[i]=null;
+                counter.setLevel (level);
+            }
+
+            //Places the bricks once again onto the screen
+            for (int i = bricksLeft; i <=bricksLeft; i++)
+            {
+                bricks[i] = new Brick();
+                createBricks();
+                createRow(bricksLeft);
+                addObject(bricks[i], 200, 400) ;
+            }
+            //Sets the value for the level counter
+            level++;
+            counter.setLevel (level);
+
+            // Increases the speed of the ball for the new level
+            ballSpeed = ballSpeed + 6; 
+        }
+    }   
+
+    /**
+     * Create the Bricks at the top of the world.
+     * Borrowed code from mit.
+     */
+    private void createBricks() //Beginning of borrowed code
+    {
+        int y = 30;
+        //Creates the bricks
+        while ( y <= 94 ) {
+            createRow(y);
+            y = y + 20 + GAP;
+        }
+    }                           //End of borrowed code
+
+    /**
+     * Creates a row of bricks with equal amount of spaces in between them.
+     */
+
+    private void createRow(int y)
+    {
+        int x = 50;
+        //Creates the row of bricks
+        while ( x < 460 ) 
+        {
+            addObject( new Brick(), x, y);
+            x = x + 60 + GAP;
+        }
+    }
+
+    /**
+     * Repositions the ball and the paddle to the original state of the game.
+     */
+    public void reset()
+    {
+        paddle.newBall();
+    }
+
+    /**
+     * Subtracts a life from the user when the ball goes out of bounds, then resets the ball to the original location.
+     */
+    public void ballIsOut()
+    {
+        paddle.newBall();
+        counter.subtractLife();
+    }
+
+    /**
+     * Adds the score to the counter when a brick is destroyed
+     */
+    public void score()
+    {
+        counter.addScore();
+    }
+
+    /**
+     * Stops the game once the user runs out of lives
+     */
+    public void gameStop()
+    {
+        Greenfoot.stop();
+        //         if (UserInfo.isStorageAvailable()) {
+        //             HighScore highScore = new HighScore (Insert integer of current Score here);
+        //             addObject (highScore, x-coord, y-coord);
+        //         }
+    }
+}
