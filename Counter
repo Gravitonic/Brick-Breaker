@@ -1,0 +1,84 @@
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import java.awt.*;
+
+/**
+ * Keeps track of the score, level, and remaining lives for the user.
+ * 
+ * @author (Nathaniel Hailu) 
+ * @version June 17 2013
+ */
+
+/**
+ * Borrowed class from Brian Huang and Michael Kolling
+ */
+public class Counter extends Actor
+{
+    private int score;
+    private int level = 1;
+    private int lives = 3;
+    private int ballSpeed = 20;
+    private Ball ball;
+
+    /**
+     * Adds the counter to the screen
+     */
+    public Counter()
+    {
+        score = 0;
+        //Creates the counter image to display onto screen
+        setImage (new GreenfootImage(200, 70));
+        update();
+    }
+
+    /**
+     * Adds 20 points to the score every time a brick is destroyed
+     */
+
+    public void addScore()
+    {
+        //Adds 20 points
+        score += 20;
+        //Updates the score
+        update();
+    }
+
+    /**
+     * Sets the value for the level counter and adjust the speed of the ball according to the level.
+     */
+    public void setLevel(int level)
+    {
+        level ++;
+        this.ballSpeed = level * 5;
+    }
+
+    /**
+     * Removes a life when the ball has exited the screen.
+     */
+    public void subtractLife ()
+    {
+        this.lives -= 1;
+        if (lives == 0 )
+        {
+            BrickWorld myBrickWorld = (BrickWorld) getWorld();
+            myBrickWorld.gameStop();
+        }
+    }
+
+    /**
+     * Draws the counter image onto the screen to keep track of the state of the game.
+     */
+    private void update()
+    {
+        GreenfootImage img = getImage();
+        img.clear();
+        //Sets the color of the counter
+        img.setColor(Color.BLACK);
+        //Sets the font of the counter
+        img.setFont(img.getFont().deriveFont(Font.BOLD));
+        //Sets the font size of the counter 
+        img.setFont(img.getFont().deriveFont(16.0F));
+        img.drawString("Score: " + score, 4, 50);
+        img.drawString("Level: " + level, 4, 30);
+        img.drawString("Lives: " + lives, 4, 15);
+    }
+}
